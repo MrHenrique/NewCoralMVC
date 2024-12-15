@@ -1,0 +1,95 @@
+@model CoralBlog.Models.PostsViewModel
+@using System.Linq;
+
+@{
+    ViewData["Title"] = "Posts";
+    int pageSize = 9;
+    int pageNumber = Model.Page.HasValue ? Model.Page.Value : 1;
+    int totalPosts = Model.Posts?.Count ?? 0;
+    int totalPages = (int)Math.Ceiling((double)totalPosts / pageSize);
+    var paginatedPosts = Model.Posts?.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();    
+    int pageSet = (pageNumber - 1) / 3;
+    int startPage = pageSet * 3 + 1;
+    int endPage = Math.Min(startPage + 2, totalPages);
+
+}
+
+<div class="container">
+    <section class="text-center">
+        <div class="posts row pt-4 mb-4">
+            @if (paginatedPosts != null && paginatedPosts.Any())
+            {
+                @for (int i = 0; i < paginatedPosts.Count; i++)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4 post" style="height: 500px;">
+                        <br>
+                        <div class="card mb-3 bg-white h-100 card-shadow">
+                            <div class="bg-image hover-overlay ripple w-100" style="height: 70%;" data-mdb-ripple-color="light">
+                            <a href="@Url.Action("Index", "Post", new { postId = paginatedPosts[i].Id })">
+                                <img src="@paginatedPosts[i].Thumb" class="img-fluid h-100 w-100" style="object-fit: cover;" />
+                                    <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                                </a>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="card-content flex-grow-1">
+                                    <h5 class="card-title text-black text-uppercase fw-bold">
+                                        @paginatedPosts[i].Title
+                                    </h5>
+                                    <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                        @paginatedPosts[i].Date.ToString("dd/MM/yy") por @paginatedPosts[i].Author?.Username
+                                    </p>
+                                    <p class="card-text fs-6 fw-lighter flex-grow-1">
+                                        @(paginatedPosts[i].Content?.Length > 30 ? paginatedPosts[i].Content.Substring(0, 30) + " ..."
+                                            : paginatedPosts[i].Content)
+                                    </p>
+                                </div>
+                                <a href="@Url.Action("Index","Post", new { postId = paginatedPosts[i].Id })"
+                                    class="text-black text-uppercase fw-bold text-decoration-underline mt-auto"
+                                    style="color:hotpink">Leia mais</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="container" style="min-height: 100%">
+                    <h1 class="text-grey text-uppercase fw-bold">Nenhuma postagem encontrada.</h1>
+                </div>
+            }
+        </div>
+        
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(startPage > 1 ? "" : "disabled")">
+                <a class="page-link" href="@(startPage > 1 ? Url.Action("Index", new { page = startPage - 3 }) : "#")">&laquo;</a>
+            </li>
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == pageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(endPage < totalPages ? "" : "disabled")">
+                <a class="page-link" href="@(endPage < totalPages ? Url.Action("Index", new { page = startPage + 3 }) : "#")">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}
+    </section>
+</div>
+<style>
+    .card-shadow {
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }                
+    .page-item.active .page-link {
+    color: black;
+    background-color: pink;
+    border-color: pink;
+    }
+    .page-link {
+    color: grey;
+    }
+</style>

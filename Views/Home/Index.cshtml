@@ -1,0 +1,122 @@
+﻿@model CoralBlog.Models.PostsViewModel
+@using System.Linq;
+
+@{
+    ViewData["Title"] = "Ínicio";
+}
+
+<div class="container">
+    <section class="text-center">
+        <div class="posts row pt-4 pb-4">
+            @if (Model?.Posts != null && Model.Posts.Any())
+            {
+                <div class="col-lg-5 col-md-12 mb-4 post pb-4" style="height: 700px;">
+                    <div class="card mb-3 bg-white h-100 card-shadow">
+                        <div class="bg-image hover-overlay ripple w-100 h-75" data-mdb-ripple-color="light">
+                            <a href="@Url.Action("Index", "Post", new { postId = Model.Posts.First().Id })">
+                                <img src="@Model.Posts.First().Thumb" class="img-fluid w-100 h-100"
+                                    style="object-fit: cover;" />
+                                <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                            </a>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <div class="card-content flex-grow-1">
+                                <h5 class="card-title text-black text-uppercase fw-bold">
+                                    @Model.Posts.First().Title
+                                </h5>
+                                <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                    @Model.Posts.First().Date.ToString("dd/MM/yy") por @Model.Posts.First().Author?.Username
+                                </p>
+                                <p class="card-text fs-6 fw-lighter flex-grow-1">
+                                    @(Model.Posts.First().Content?.Length > 50 ? Model.Posts.First().Content.Substring(0,
+                                        50) + " ..." : Model.Posts.First().Content)
+                                </p>
+                            </div>
+                            <a href="@Url.Action("Index", "Post", new { postId = Model.Posts.First().Id })"
+                                class="text-black text-uppercase fw-bold text-decoration-underline mt-auto"
+                                style="color:hotpink">Leia mais</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 col-md-12 mb-4 post pb-4" style="height: 700px;">
+                    <div class="row h-100">
+                        @for (int i = 1; i < 3 && i < Model.Posts.Count; i++)
+                        {
+                            <div class="col-12 h-50 @(i == 1 ? "pb-2" : "pt-2")">
+                                <div class="card mb-3 bg-white h-100 card-shadow">
+                                    <div class="bg-image hover-overlay ripple w-100" style="height: 60%;"
+                                        data-mdb-ripple-color="light">
+                                        <a href="@Url.Action("Index", "Post", new { postId = Model.Posts[i].Id })">
+                                            <img src="@Model.Posts[i].Thumb" class="img-fluid w-100 h-100"
+                                                style="object-fit: cover;" />
+                                            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                                        </a>
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="card-content flex-grow-1">
+                                            <h5 class="card-title text-black text-uppercase fw-bold">
+                                                @Model.Posts[i].Title
+                                            </h5>
+                                            <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                                @Model.Posts[i].Date.ToString("dd/MM/yy") por @Model.Posts[i].Author?.Username
+                                            </p>
+                                            <p class="card-text fs-6 fw-lighter flex-grow-1">
+                                                @(Model.Posts[i].Content?.Length > 30 ? Model.Posts[i].Content.Substring(0, 30)
+                                                    + " ..." : Model.Posts[i].Content)
+                                            </p>
+                                        </div>
+                                        <a href="@Url.Action("Index","Post", new { postId = Model.Posts[i].Id })"
+                                            class="text-black text-uppercase fw-bold text-decoration-underline mt-auto"
+                                            style="color:hotpink">Leia mais</a>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                @for (int i = 3; i < Model.Posts.Count; i++)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4 post" style="height: 500px;">
+                        <br>
+                        <div class="card mb-3 bg-white h-100 card-shadow">
+                            <div class="bg-image hover-overlay ripple w-100" style="height: 70%;" data-mdb-ripple-color="light">
+                                <a href="@Url.Action("Index", "Post", new { postId = Model.Posts[i].Id })">
+                                    <img src="@Model.Posts[i].Thumb" class="img-fluid h-100 w-100" style="object-fit: cover;" />
+                                    <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                                </a>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="card-content flex-grow-1">
+                                    <h5 class="card-title text-black text-uppercase fw-bold">
+                                        @Model.Posts[i].Title
+                                    </h5>
+                                    <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                        @Model.Posts[i].Date.ToString("dd/MM/yy") por @Model.Posts[i].Author?.Username
+                                    </p>
+                                    <p class="card-text fs-6 fw-lighter flex-grow-1">
+                                        @(Model.Posts[i].Content?.Length > 30 ? Model.Posts[i].Content.Substring(0, 30) + " ..."
+                                            : Model.Posts[i].Content)
+                                    </p>
+                                </div>
+                                <a href="@Url.Action("Index","Post", new { postId = Model.Posts[i].Id })"
+                                    class="text-black text-uppercase fw-bold text-decoration-underline mt-auto"
+                                    style="color:hotpink">Leia mais</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="container" style="min-height: 100%">
+                    <h1 class="text-grey text-uppercase fw-bold">Nenhuma postagem encontrada.</h1>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+<style>
+    .card-shadow {
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+</style>

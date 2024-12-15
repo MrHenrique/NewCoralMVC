@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Required" xml:space="preserve">
+    <value>O campo {0} é obrigatório.</value>
+  </data>
+  <data name="StringLength" xml:space="preserve">
+    <value>O campo {0} deve ter no máximo {1} caracteres.</value>
+  </data>
+  <data name="EmailAddress" xml:space="preserve">
+    <value>O campo {0} não é um endereço de email válido.</value>
+  </data>
+</root>

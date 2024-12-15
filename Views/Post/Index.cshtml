@@ -1,0 +1,222 @@
+@model CoralBlog.Models.PostViewModel
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery Antiforgery
+
+@{
+    ViewData["Title"] = Model.Post.Title;
+    var userId = User.Claims.FirstOrDefault(c => c.Type ==
+    "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+    var isAdmin = User.IsInRole("Admin");
+}
+<div class="container">
+    <section class="text-center">
+        <div class="post row pt-4 mb-4">
+            <div class="col-lg-12 col-md-12 mx-auto">
+                <div class="card mb-3 bg-white h-100 card-shadow">
+                    <div class="bg-image hover-overlay ripple" data-mdb-ripple-color="light">
+                        <img src="@Model.Post.Thumb" class="img-fluid" style="object-fit: cover;" />
+                        <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="card-content flex-grow-1">
+                            <h5 class="card-title text-black text-uppercase fw-bold">
+                                @Model.Post.Title
+                            </h5>
+                            <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                @Model.Post.Date.ToString("dd/MM/yy") por @Model.Post.Author?.Username
+                            </p>
+                            <p class="card-text fs-6 fw-lighter flex-grow-1">
+                                @Model.Post.Content
+                            </p>
+                        </div>
+                        @if (isAdmin)
+                        {
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-link text-black text-decoration-none"
+                                    onclick="editPost()">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form method="post" action="@Url.Action("DeletePost", "Post")" class="d-inline">
+                                    <input type="hidden" name="id" value="@Model.Post.Id" />
+                                    <button type="submit" class="btn btn-link text-black text-decoration-none">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="edit-post" class="d-none">
+        <form method="post" action="@Url.Action("EditPost", "Post")" enctype="multipart/form-data">
+            <input type="hidden" name="Id" value="@Model.Post.Id" />
+            <input type="hidden" name="userId" value="@userId" />
+            <div class="form-group mb-2">
+                <label for="Title">Título</label>
+                <input type="text" class="form-control" id="Title" name="Title" value="@Model.Post.Title" required />
+            </div>
+            <div class="form-group mb-2">
+                <label for="Content">Conteúdo</label>
+                <textarea class="form-control" id="Content" name="Content" rows="5"
+                    required>@Model.Post.Content</textarea>
+            </div>
+            <div class="form-group mb-2">
+                <label for="Thumb">Imagem</label>
+                <input type="file" class="form-control" id="Thumb" name="Thumb" required />
+            </div>
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-link mt-2 p-0 text-black">
+                    <i class="fas fa-check me-2"></i>
+                </button>
+                <button type="button" class="btn btn-link mt-2 p-0 text-black" onclick="cancelEditPost()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <section class="comments">
+        <h3>Comentários</h3>
+        @if (Model.Comments != null && Model.Comments.Any())
+        {
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="comment card mb-3 bg-white card-shadow" id="comment-@comment.Id">
+                    <div class="card-body position-relative">
+                        <div id="comment-content-@comment.Id">
+                            <p class="card-text">@comment.Content</p>
+                            <p class="lh-1 fst-italic" style="color:hotpink;font-size:13px">
+                                @comment.Date.ToString("dd/MM/yy") por @comment.Author?.Username
+                            </p>
+                        </div>
+                        <div id="edit-comment-@comment.Id" class="d-none">
+                            <form method="post" action="@Url.Action("EditComment", "Post")">
+                                <textarea class="form-control mb-2" name="Content">@comment.Content</textarea>
+                                <input type="hidden" name="Id" value="@comment.Id" />
+                                <input type="hidden" name="PostId" value="@Model.Post.Id" />
+                                <input type="hidden" name="AuthorId" value="@userId" />
+                                <button type="submit" class="btn btn-link text-black text-decoration-none">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="btn btn-link text-black text-decoration-none"
+                                    onclick="cancelEdit('@comment.Id')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="position-absolute bottom-0 end-0 m-2">
+                            @if (userId == comment.Author?.Id)
+                            {
+                                <button type="button" class="btn btn-link text-black text-decoration-none"
+                                    onclick="editComment('@comment.Id')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            }
+                            @if (userId == comment.Author?.Id || isAdmin)
+                            {
+                                <form method="post" action="@Url.Action("DeleteComment", "Post")" class="d-inline">
+                                    <input type="hidden" name="Id" value="@comment.Id" />
+                                    <input type="hidden" name="PostId" value="@Model.Post.Id" />
+                                    <button type="submit" class="btn btn-link text-black text-decoration-none">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>Nenhum comentário encontrado.</p>
+        }
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.Page > 1 ? "" : "disabled")">
+                        <a class="page-link"
+                            href="@(Model.Page > 1 ? Url.Action("Index", new { postId = Model.Post.Id, page = Model.Page - 1 }) : "#")">&laquo;</a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { postId = Model.Post.Id, page = i })">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.Page < Model.TotalPages ? "" : "disabled")">
+                        <a class="page-link"
+                            href="@(Model.Page < Model.TotalPages ? Url.Action("Index", new { postId = Model.Post.Id, page = Model.Page + 1 }) : "#")">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+
+        @if (!string.IsNullOrEmpty(userId))
+        {
+            <div class="create-comment">
+                <h4>Adicionar um comentário.</h4>
+                <form method="post" action="@Url.Action("CreateComment", "Post")">
+                    <input type="hidden" name="postId" value="@Model.Post.Id" />
+                    <input type="hidden" name="authorId" value="@userId" />
+                    <div class="form-group">
+                        <textarea name="content" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-link mt-2 p-0 text-black">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <p class="text-center">Para comentar, faça <a href="@Url.Action("Index", "Login")">login</a>.</p>
+        }
+    </section>
+</div>
+
+<style>
+    .card-shadow {
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-item.active .page-link {
+        color: black;
+        background-color: pink;
+        border-color: pink;
+    }
+
+    .page-link {
+        color: grey;
+    }
+</style>
+
+<script>
+    function editPost() {
+        document.querySelector('.post').classList.add('d-none');
+        document.getElementById('edit-post').classList.remove('d-none');
+    }
+
+    function cancelEditPost() {
+        document.querySelector('.post').classList.remove('d-none');
+        document.getElementById('edit-post').classList.add('d-none');
+    }
+
+    function editComment(commentId) {
+        document.getElementById('comment-content-' + commentId).classList.add('d-none');
+        document.getElementById('edit-comment-' + commentId).classList.remove('d-none');
+    }
+
+    function cancelEdit(commentId) {
+        document.getElementById('comment-content-' + commentId).classList.remove('d-none');
+        document.getElementById('edit-comment-' + commentId).classList.add('d-none');
+    }
+</script>

@@ -1,0 +1,30 @@
+@model CoralBlog.Models.Post
+
+@{
+    ViewData["Title"] = "Criar Novo Post";
+}
+
+<div class="container w-50">
+    <h2>Criar Novo Post</h2>
+    <br>
+    <form asp-action="CreatePost" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="Title">Título</label>
+            <input asp-for="Title" class="form-control" placeholder="Digite o título do post" required />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Content">Conteúdo</label>
+            <textarea asp-for="Content" class="form-control" rows="5" placeholder="Digite o conteúdo do post" required></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Thumb">Imagem</label>
+            <input asp-for="Thumb" class="form-control" type="file" required />
+            <span asp-validation-for="Thumb" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-link py-2 text-black">
+            <i class="fas fa-plus"> Criar</i>
+        </button>
+    </form>
+</div>

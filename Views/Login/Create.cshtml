@@ -1,0 +1,32 @@
+@model CoralBlog.Models.BlogUser
+
+@{
+    ViewData["Title"] = "Criar Usuário";
+}
+
+
+
+<div class="container w-50">
+    <h2>Criar Usuário</h2>
+    <br>
+    <form asp-action="Create" method="post">
+        <div class="form-group">
+            <label asp-for="Username">Nome de Usuário</label>
+            <input asp-for="Username" class="form-control" placeholder="Digite seu nome de usuário" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Password">Senha</label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="Digite sua senha" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" class="form-control" placeholder="Digite seu email" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-link py-2 text-black">
+            <i class="fas fa-user-plus"> Criar</i>
+        </button>
+    </form>
+</div>
